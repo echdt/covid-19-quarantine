@@ -226,6 +226,7 @@ var Gallery = (function() {
 		if( winsize.width > 1300 ) {
 			this.$el.css( 'perspective', 1700 );
 		}
+		this.maximumwalls = Gallery.settings.layout.length
 		this.transitionSettings = transformName + ' ' + Gallery.settings.speed + 'ms ' + Gallery.settings.easing;
 		// element representing the wall
 		this.$mainWall = this.$el.find( 'div.gr-wall-main' ).css( 'transition', this.transitionSettings );
@@ -252,8 +253,7 @@ var Gallery = (function() {
 			this.layout = typeof Gallery.settings.layout != 'undefined' && Gallery.settings.layout instanceof Array && support.transforms3d ? Gallery.settings.layout : this.getLayoutSettings();
 			
 			var pos = 0, max = 0, prev = 0,
-				wallsCount = support.transforms3d ? 4 : 1;
-
+				wallsCount = support.transforms3d ? this.maximumwalls : 1;
 			for( var i = 0; i < wallsCount; ++i ) {
 
 				var nmb = this.layout[ i ];
@@ -309,10 +309,10 @@ var Gallery = (function() {
 		},
 		getLayoutSettings : function() {
 
-			var perwall = Math.floor( this.totalItems / 4 ),
-				lastwall = perwall + this.totalItems % 4;
+			var perwall = Math.floor( this.totalItems / this.maximumwalls ),
+				lastwall = perwall + this.totalItems % this.maximumwalls;
 
-			return support.transforms3d ? [perwall,perwall,perwall,lastwall] : [this.totalItems];
+			return support.transforms3d ? Gallery.settings.layout : [this.totalItems];
 
 		},
 		// displays the items of a wall on a container $wallElem
@@ -507,7 +507,7 @@ var Gallery = (function() {
 
 						this.lastWall = this.currentWall;
 						// update current wall
-						this.currentWall < 3 ? ++this.currentWall : this.currentWall = 0;
+						this.currentWall < this.maximumwalls-1 ? ++this.currentWall : this.currentWall = 0;
 						// update wall
 						wall = this.walls[ this.currentWall ];
 						changeWall = true;
@@ -535,7 +535,7 @@ var Gallery = (function() {
 
 						this.lastWall = this.currentWall;
 						// update current wall
-						this.currentWall > 0 ? --this.currentWall : this.currentWall = 3;			
+						this.currentWall > 0 ? --this.currentWall : this.currentWall = this.maximumwalls-1;			
 						// update wall
 						wall = this.walls[ this.currentWall ];
 						changeWall = true;
